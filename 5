@@ -1,0 +1,43 @@
+drop database te1234;
+create database te1234;
+use te1234;
+
+
+DROP PROCEDURE IF EXISTS area_of_circle;
+DROP TABLE IF EXISTS areas;
+
+
+CREATE TABLE areas (
+  radius FLOAT,
+  area FLOAT
+);
+
+DELIMITER //
+
+CREATE PROCEDURE area_of_circle()
+BEGIN
+    DECLARE radius FLOAT DEFAULT 5;
+    DECLARE area FLOAT;
+    DECLARE pi FLOAT DEFAULT 3.14;
+
+    WHILE radius <= 9 DO
+        SET area = pi * radius * radius;
+
+        
+        INSERT INTO areas (radius, area) VALUES (radius, area);
+
+       
+        SELECT CONCAT('Radius = ', radius, ', Area = ', area) AS Result;
+
+        
+        SET radius = radius + 1;
+    END WHILE;
+END;
+//
+DELIMITER ;
+
+
+CALL area_of_circle();
+
+
+SELECT * FROM areas;
