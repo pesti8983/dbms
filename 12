@@ -1,0 +1,63 @@
+  db.student.insertMany([
+  { RollNo: 1, Name: "Ram", Branch: "Computer", Marks: 95, City: "Nashik" },
+  { RollNo: 2, Name: "Ravi", Branch: "Computer", Marks: 90, City: "Pune" },
+  { RollNo: 3, Name: "Jayesh", Branch: "Computer", Marks: 97, City: "Mumbai" },
+  { RollNo: 4, Name: "Rohan", Branch: "Computer", Marks: 70, City: "Nashik" },
+  { RollNo: 5, Name: "Pande", Branch: "Computer", Marks: 85, City: "Pune" },
+  { RollNo: 6, Name: "Pranav", Branch: "IT", Marks: 54, City: "Mumbai" },
+  { RollNo: 7, Name: "Devang", Branch: "IT", Marks: 60, City: "Pune" }
+])
+
+db.student.find().pretty()
+
+
+
+db.student.aggregate([
+  { $group: { _id: "$Branch", Total_Marks: { $sum: "$Marks" } } }
+])
+
+db.student.aggregate([
+  { $group: { _id: "$Branch", Maximum_Marks: { $max: "$Marks" } } }
+])
+
+db.student.aggregate([
+  { $group: { _id: "$Branch", Minimum_Marks: { $min: "$Marks" } } }
+])
+
+db.student.aggregate([
+  { $group: { _id: "$Branch", Avg_Marks: { $avg: "$Marks" } } }
+])
+
+db.student.aggregate([
+  { $match: { Marks: { $gte: 80 } } },
+  { $group: { _id: "$Branch", High_Scorers: { $sum: 1 } } }
+])
+
+db.student.aggregate([
+  { $group: { _id: "$City", Total_Students: { $sum: 1 }, Avg_Marks: { $avg: "$Marks" } } }
+])
+
+db.student.aggregate([
+  { $sort: { Marks: -1 } },
+  { $limit: 3 }
+])
+
+db.student.aggregate([
+  { $project: { _id: 0, Name: 1, Branch: 1, Marks: 1, Result: { $cond: [{ $gte: ["$Marks", 75] }, "Pass", "Fail"] } } }
+])
+
+
+
+db.student.createIndex({ Marks: 1 })
+
+db.student.createIndex({ Branch: 1, Marks: -1 })
+
+db.student.createIndex({ City: 1 })
+
+db.student.getIndexes()
+
+db.student.find({ Marks: { $gt: 90 } }).explain("executionStats")
+
+db.student.dropIndex({ City: 1 })
+
+db.student.getIndexes()
