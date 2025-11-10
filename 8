@@ -1,0 +1,70 @@
+
+
+CREATE DATABASE IF NOT EXISTS TEBDBMS11;
+USE TEBDBMS11;
+
+
+DROP TABLE IF EXISTS lib_Audit;
+DROP TABLE IF EXISTS lib_book;
+
+
+CREATE TABLE lib_book (
+  bid INT PRIMARY KEY,
+  bname VARCHAR(20),
+  qty INT
+);
+
+CREATE TABLE lib_Audit (
+  bid INT,
+  bname VARCHAR(20),
+  qty INT
+);
+
+
+INSERT INTO lib_book VALUES
+  (1, 'DBMS', 70),
+  (2, 'SPOS', 40),
+  (3, 'SPM', 10),
+  (4, 'CNS', 60),
+  (5, 'TOC', 20);
+
+
+SELECT * FROM lib_book;
+SELECT * FROM lib_Audit;
+
+
+DROP TRIGGER IF EXISTS Make_audit1;
+DROP TRIGGER IF EXISTS Make_audit2;
+
+
+DELIMITER //
+CREATE TRIGGER Make_audit1
+AFTER DELETE ON lib_book
+FOR EACH ROW
+BEGIN
+  INSERT INTO lib_Audit (bid, bname, qty)
+  VALUES (OLD.bid, OLD.bname, OLD.qty);
+END;
+//
+DELIMITER ;
+
+
+DELIMITER //
+CREATE TRIGGER Make_audit2
+AFTER UPDATE ON lib_book
+FOR EACH ROW
+BEGIN
+  INSERT INTO lib_Audit (bid, bname, qty)
+  VALUES (OLD.bid, OLD.bname, OLD.qty);
+END;
+//
+DELIMITER ;
+
+
+DELETE FROM lib_book WHERE bid = 4;
+
+
+UPDATE lib_book SET qty = qty + 10 WHERE bid = 5;
+
+SELECT * FROM lib_book;
+SELECT * FROM lib_Audit;
