@@ -1,0 +1,75 @@
+db.createCollection("TE")
+
+
+db.TE.insertMany([
+  { Rollno: 1, Marks: 98, Div: "B" },
+  { Rollno: 2, Marks: 90, Div: "A" },
+  { Rollno: 3, Marks: 84, Div: "A" },
+  { Rollno: 4, Marks: 70, Div: "A" },
+  { Rollno: 5, Marks: 76, Div: "B" },
+  { Rollno: 6, Marks: 65, Div: "C" }
+])
+
+
+db.TE.mapReduce(
+  function () { emit(this.Div, this.Marks); },
+  function (key, values) { return Array.sum(values); },
+  { out: "Total_Marks" }
+)
+
+db.Total_Marks.find().pretty()
+
+
+db.TE.mapReduce(
+  function () { emit(this.Div, { sum: this.Marks, count: 1 }); },
+  function (key, values) {
+    // `values` can be original map objects or intermediate reduced objects
+    var result = { sum: 0, count: 0 };
+    values.forEach(function (v) {
+      // defensive: if v has sum/count, use them; otherwise assume it's a number (not expected here)
+      if (v && typeof v.sum === "number" && typeof v.count === "number") {
+        result.sum += v.sum;
+        result.count += v.count;
+      } else if (typeof v === "number") {
+        // fallback just in case a plain number gets through
+        result.sum += v;
+        result.count += 1;
+      }
+    });
+    return result;
+  },
+  {
+    finalize: function (key, reduced) {
+      // guard against division by zero
+      reduced.avg = reduced.count ? (reduced.sum / reduced.count) : 0;
+      return reduced;
+    },
+    out: { inline: 1 }
+  }
+)
+
+
+db.TE.mapReduce(
+  function () { emit(this.Div, 1); },
+  function (key, values) { return Array.sum(values); },
+  { out: "Count_Per_Div" }
+)
+db.Count_Per_Div.find().pretty()
+
+
+db.TE.mapReduce(
+  function () { emit(this.Div, this.Marks); },
+  function (key, values) { return Array.sum(values); },
+  {
+    query: { Div: "A" },
+    out: { inline: 1 }
+  }
+)
+
+
+db.TE.mapReduce(
+  function () { emit((this.Rollno % 2 === 0) ? "Even" : "Odd", this.Marks); },
+  function (key, values) { return Array.sum(values); },
+  { out: "Parity_Marks" }
+)
+db.Parity_Marks.find().pretty()
