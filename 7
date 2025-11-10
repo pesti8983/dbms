@@ -1,0 +1,76 @@
+
+
+CREATE DATABASE IF NOT EXISTS TEB11;
+USE TEB11;
+
+
+DROP TABLE IF EXISTS N_RollCall;
+DROP TABLE IF EXISTS O_RollCall;
+
+
+CREATE TABLE N_RollCall (
+  rollno INT PRIMARY KEY,
+  name VARCHAR(20)
+);
+
+CREATE TABLE O_RollCall (
+  rollno INT PRIMARY KEY,
+  name VARCHAR(20)
+);
+
+
+INSERT INTO O_RollCall VALUES (1, 'Ram');
+INSERT INTO O_RollCall VALUES (2, 'Ravi');
+INSERT INTO O_RollCall VALUES (3, 'Sarvesh');
+
+
+INSERT INTO N_RollCall VALUES (2, 'Ravi');
+INSERT INTO N_RollCall VALUES (4, 'Jayesh');
+
+
+SELECT * FROM O_RollCall;
+SELECT * FROM N_RollCall;
+
+
+DROP PROCEDURE IF EXISTS mycursor1;
+
+DELIMITER //
+
+CREATE PROCEDURE mycursor1()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE c_rollno INT;
+    DECLARE c_name VARCHAR(20);
+
+    
+    DECLARE c_studentN CURSOR FOR 
+        SELECT rollno, name 
+        FROM O_RollCall 
+        WHERE rollno NOT IN (SELECT rollno FROM N_RollCall);
+
+   
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN c_studentN;
+
+    read_loop: LOOP
+        FETCH c_studentN INTO c_rollno, c_name;
+
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+
+     
+        INSERT INTO N_RollCall(rollno, name) VALUES (c_rollno, c_name);
+    END LOOP;
+
+    CLOSE c_studentN;
+END;
+//
+DELIMITER ;
+
+
+CALL mycursor1();
+
+
+SELECT * FROM N_RollCall;
