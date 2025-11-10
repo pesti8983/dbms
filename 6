@@ -1,0 +1,88 @@
+
+CREATE DATABASE IF NOT EXISTS TEB11;
+USE TEB11;
+
+
+DROP TABLE IF EXISTS stud_marks;
+DROP TABLE IF EXISTS Result;
+
+
+CREATE TABLE stud_marks (
+  rollno INT PRIMARY KEY,
+  name VARCHAR(20),
+  marks INT
+);
+
+CREATE TABLE Result (
+  rollno INT PRIMARY KEY,
+  name VARCHAR(20),
+  class VARCHAR(30)
+);
+
+
+INSERT INTO stud_marks VALUES (1, 'Ram', 1500);
+INSERT INTO stud_marks VALUES (2, 'Ravi', 700);
+INSERT INTO stud_marks VALUES (3, 'Sachin', 400);
+INSERT INTO stud_marks VALUES (4, 'Shankul', 900);
+
+
+SELECT * FROM stud_marks;
+SELECT * FROM Result;
+
+
+DROP PROCEDURE IF EXISTS proc_Grade;
+
+DELIMITER //
+
+CREATE PROCEDURE proc_Grade()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE s_marks INT;
+    DECLARE s_rollno INT;
+    DECLARE s_name VARCHAR(30);
+    DECLARE s_class VARCHAR(30);
+
+    
+    DECLARE s_student CURSOR FOR 
+        SELECT rollno, name, marks FROM stud_marks;
+
+    
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    
+    OPEN s_student;
+
+    
+    read_loop: LOOP
+        FETCH s_student INTO s_rollno, s_name, s_marks;
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+
+        
+        IF (s_marks BETWEEN 990 AND 1500) THEN
+            SET s_class = 'Distinction';
+        ELSEIF (s_marks BETWEEN 900 AND 989) THEN
+            SET s_class = 'First Class';
+        ELSEIF (s_marks BETWEEN 825 AND 899) THEN
+            SET s_class = 'Higher Second Class';
+        ELSE
+            SET s_class = 'Pass';
+        END IF;
+
+
+        INSERT INTO Result (rollno, name, class)
+        VALUES (s_rollno, s_name, s_class);
+    END LOOP;
+
+   
+    CLOSE s_student;
+END;
+//
+DELIMITER ;
+
+
+CALL proc_Grade();
+
+
+SELECT * FROM Result;
