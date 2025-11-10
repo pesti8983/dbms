@@ -1,0 +1,96 @@
+create database te1234;
+use te1234;
+CREATE TABLE IF NOT EXISTS Student_Mark (Roll_no INT PRIMARY KEY,Name VARCHAR(50),Marks INT,Branch VARCHAR(50));
+INSERT INTO Student_Mark VALUES
+	(1, 'Sachin', 90, 'Computer'),
+	(2, 'Vedika', 70, 'Computer'),
+	(3, 'Aarush', 95, 'IT'),
+	(4, 'Jyoti', 60, 'IT');
+
+show tables;
+select * from Student_Mark;
+select * from Student_Mark where Marks > 70;
+select * from Student_Mark where Marks < 70;
+select * from Student_Mark where Marks = 70 and Name = 'Vedika';
+select * from Student_Mark;
+update Student_Mark set Name = 'Sachin' where Roll_no = 1;
+select * from Student_Mark;
+update Student_Mark set Name = 'Ravi' where Roll_no = 1;
+select * from Student_Mark;
+update Student_Mark set Name = 'Sachin' where Roll_no = 1;
+select * from Student_Mark;
+delete from Student_Mark where Roll_no = 3;
+select * from Student_Mark;
+select max(Marks) from Student_Mark;
+select * from Student_Mark where Marks = (select max(Marks) from Student_Mark);
+select * from Student_Mark;
+select Branch from Student_Mark;
+select Branch from Student_Mark group by Branch;
+select max(Marks) from Student_Mark;
+select min(Marks) from Student_Mark;
+select avg(Marks) from Student_Mark;
+select count(Marks) from Student_Mark;
+select count(Branch) from Student_Mark;
+select sum(Marks) from Student_Mark;
+select min(Marks) as Minimun_Marks from Student_Mark;
+select min(Marks) as Minimum_Marks from Student_Mark;
+select max(Marks) as Maximum_Marks from Student_Mark;
+
+
+
+CREATE TABLE IF NOT EXISTS Student_Info (
+  Roll_no INT PRIMARY KEY,
+  Name VARCHAR(50),
+  Marks INT,
+  Branch VARCHAR(50),
+  Address VARCHAR(100)
+);
+
+
+INSERT INTO Student_Info (Roll_no, Name, Marks, Branch, Address) VALUES
+  (1, 'Sachin', 90, 'Computer', 'Mumbai'),
+  (2, 'Vedika', 70, 'Computer', 'Nashik'),
+  (3, 'Aarush', 95, 'IT', 'Pune'),
+  (4, 'Jyoti', 60, 'IT', 'Nashik')
+ON DUPLICATE KEY UPDATE
+  Name = VALUES(Name),
+  Marks = VALUES(Marks),
+  Branch = VALUES(Branch),
+  Address = VALUES(Address);
+
+
+SELECT * FROM Student_Mark;
+SELECT * FROM Student_Info;
+
+
+SELECT s.Roll_no, s.Name, s.Marks, i.Address
+FROM Student_Mark s
+INNER JOIN Student_Info i
+ON s.Roll_no = i.Roll_no;
+
+
+SELECT s.Roll_no, s.Name, s.Marks, i.Address
+FROM Student_Mark s
+LEFT JOIN Student_Info i
+ON s.Roll_no = i.Roll_no;
+
+
+SELECT i.Roll_no, i.Name, i.Marks, i.Address
+FROM Student_Mark s
+RIGHT JOIN Student_Info i
+ON s.Roll_no = i.Roll_no;
+
+
+SELECT s.Roll_no, s.Name, s.Marks, i.Address
+FROM Student_Mark s
+LEFT JOIN Student_Info i
+ON s.Roll_no = i.Roll_no
+
+UNION
+
+SELECT i.Roll_no, i.Name, i.Marks, i.Address
+FROM Student_Info i
+LEFT JOIN Student_Mark s
+ON s.Roll_no = i.Roll_no
+WHERE s.Roll_no IS NULL;
+
